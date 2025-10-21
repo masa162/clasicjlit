@@ -7,48 +7,57 @@ DROP TABLE IF EXISTS categories;
 
 -- Create authors table
 CREATE TABLE authors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id TEXT PRIMARY KEY,
+    name_jp TEXT NOT NULL,
+    name_en TEXT,
+    bio_jp TEXT,
+    bio_en TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
 );
 
 -- Create categories table
 CREATE TABLE categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id TEXT PRIMARY KEY,
+    name_jp TEXT NOT NULL,
+    name_en TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
 );
 
 -- Create works table
 CREATE TABLE works (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    author_id INTEGER NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (author_id) REFERENCES authors(id)
+    id TEXT PRIMARY KEY,
+    author_id TEXT NOT NULL,
+    title_jp TEXT NOT NULL,
+    title_en TEXT,
+    description_jp TEXT,
+    description_en TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
 );
 
 -- Create chapters table
 CREATE TABLE chapters (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    work_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    content TEXT,
-    audio_url TEXT,
+    id TEXT PRIMARY KEY,
+    work_id TEXT NOT NULL,
     chapter_order INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (work_id) REFERENCES works(id)
+    title_jp TEXT NOT NULL,
+    title_en TEXT,
+    audio_url TEXT NOT NULL,
+    content_jp TEXT,
+    content_en TEXT,
+    duration_seconds INTEGER,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (work_id) REFERENCES works(id) ON DELETE CASCADE
 );
 
 -- Create chapter_categories join table
 CREATE TABLE chapter_categories (
-    chapter_id INTEGER NOT NULL,
-    category_id INTEGER NOT NULL,
+    chapter_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
     PRIMARY KEY (chapter_id, category_id),
     FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
@@ -57,3 +66,4 @@ CREATE TABLE chapter_categories (
 -- Create indexes for better performance
 CREATE INDEX idx_works_author_id ON works(author_id);
 CREATE INDEX idx_chapters_work_id ON chapters(work_id);
+CREATE INDEX idx_chapters_order ON chapters(work_id, chapter_order);

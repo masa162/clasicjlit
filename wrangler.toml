@@ -4,7 +4,7 @@ compatibility_date = "2024-03-20"
 [[d1_databases]]
 binding = "DB"
 database_name = "clasicjlit-db"
-database_id = "<placeholder>" # You need to fill this in
+database_id = "baafd762-8776-44ff-b628-abe1d43b5038"
 migrations_dir = "db/migrations"
 
 [[r2_buckets]]
