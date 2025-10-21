@@ -152,6 +152,53 @@ export default function ChaptersPage() {
     }
   };
 
+  const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav'];
+    
+    if (!allowedTypes.includes(file.type)) {
+      setError('Invalid file type. Allowed: AAC, MP3, WAV');
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      setError('File size exceeds 10MB limit');
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const response: ApiResponse<{ url: string; key: string }> = await res.json();
+      
+      if (response.success && response.data) {
+        setEditAudioUrl(response.data.url);
+        setSuccessMessage(`File uploaded: ${response.data.url}`);
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError(response.error || 'Upload failed');
+      }
+    } catch (err) {
+      setError('Upload failed');
+      console.error('Error uploading file:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev =>
       prev.includes(categoryId)
@@ -529,13 +576,28 @@ export default function ChaptersPage() {
                         className="px-3 py-2 border rounded"
                       />
                     </div>
-                    <input
-                      type="text"
-                      value={editAudioUrl}
-                      onChange={(e) => setEditAudioUrl(e.target.value)}
-                      placeholder="Audio URL"
-                      className="w-full px-3 py-2 border rounded"
-                    />
+                    
+                    {/* Audio Upload for Edit */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Audio File</label>
+                      <input
+                        type="file"
+                        onChange={handleEditFileChange}
+                        accept="audio/*"
+                        className="w-full px-3 py-2 border rounded"
+                        disabled={uploading}
+                      />
+                      {uploading && <p className="text-sm text-blue-600 mt-1">Uploading...</p>}
+                      {editAudioUrl && (
+                        <p className="text-sm text-green-600 mt-1">
+                          ✓ Current: {editAudioUrl}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Upload new file to replace current audio. Max 10MB.
+                      </p>
+                    </div>
+                    
                     <input
                       type="number"
                       value={editDurationSeconds}
@@ -543,10 +605,62 @@ export default function ChaptersPage() {
                       placeholder="Duration (seconds)"
                       className="w-full px-3 py-2 border rounded"
                     />
+
+                    {/* Markdown Editor - Japanese */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Content (Japanese)</label>
+                      <SimpleMdeEditor
+                        value={editContentJp}
+                        onChange={(value) => setEditContentJp(value)}
+                        options={{
+                          spellChecker: false,
+                          placeholder: 'チャプターの内容を日本語で入力...',
+                        }}
+                      />
+                    </div>
+
+                    {/* Markdown Editor - English */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Content (English)</label>
+                      <SimpleMdeEditor
+                        value={editContentEn}
+                        onChange={(value) => setEditContentEn(value)}
+                        options={{
+                          spellChecker: false,
+                          placeholder: 'Enter chapter content in English...',
+                        }}
+                      />
+                    </div>
+
+                    {/* Category Selection */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Categories</label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {categories.map((category) => (
+                          <label key={category.id} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={editSelectedCategories.includes(category.id)}
+                              onChange={() => {
+                                setEditSelectedCategories(prev =>
+                                  prev.includes(category.id)
+                                    ? prev.filter(id => id !== category.id)
+                                    : [...prev, category.id]
+                                );
+                              }}
+                              className="rounded"
+                            />
+                            <span className="text-sm">{category.name_jp}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleUpdate(chapter.id)}
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        disabled={uploading}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         Save
                       </button>
