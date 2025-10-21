@@ -109,17 +109,20 @@ export default function ChaptersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('File selected:', { name: file.name, size: file.size, type: file.type });
+
     // Validate file
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav'];
+    const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-m4a'];
     
     if (!allowedTypes.includes(file.type)) {
-      setError('Invalid file type. Allowed: AAC, MP3, WAV');
+      setError(`Invalid file type: ${file.type}. Allowed: AAC, MP3, WAV, M4A`);
+      console.error('Invalid file type:', file.type);
       return;
     }
     
     if (file.size > maxSize) {
-      setError('File size exceeds 10MB limit');
+      setError(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds 10MB limit`);
       return;
     }
 
@@ -130,22 +133,29 @@ export default function ChaptersPage() {
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('Uploading to /api/upload...');
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Upload response status:', res.status);
       const response: ApiResponse<{ url: string; key: string }> = await res.json();
+      console.log('Upload response:', response);
       
       if (response.success && response.data) {
         setAudioUrl(response.data.url);
-        setSuccessMessage(`File uploaded: ${response.data.url}`);
-        setTimeout(() => setSuccessMessage(null), 3000);
+        setSuccessMessage(`File uploaded successfully! URL: ${response.data.url}`);
+        console.log('Upload success:', response.data);
+        setTimeout(() => setSuccessMessage(null), 5000);
       } else {
-        setError(response.error || 'Upload failed');
+        const errorMsg = response.error || 'Upload failed';
+        setError(errorMsg);
+        console.error('Upload failed:', errorMsg);
       }
     } catch (err) {
-      setError('Upload failed');
+      const errorMsg = 'Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error');
+      setError(errorMsg);
       console.error('Error uploading file:', err);
     } finally {
       setUploading(false);
@@ -156,17 +166,20 @@ export default function ChaptersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('Edit - File selected:', { name: file.name, size: file.size, type: file.type });
+
     // Validate file
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav'];
+    const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-m4a'];
     
     if (!allowedTypes.includes(file.type)) {
-      setError('Invalid file type. Allowed: AAC, MP3, WAV');
+      setError(`Invalid file type: ${file.type}. Allowed: AAC, MP3, WAV, M4A`);
+      console.error('Invalid file type:', file.type);
       return;
     }
     
     if (file.size > maxSize) {
-      setError('File size exceeds 10MB limit');
+      setError(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds 10MB limit`);
       return;
     }
 
@@ -174,28 +187,35 @@ export default function ChaptersPage() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      console.log('Uploading to /api/upload...');
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
+      console.log('Upload response status:', res.status);
       const response: ApiResponse<{ url: string; key: string }> = await res.json();
+      console.log('Upload response:', response);
       
       if (response.success && response.data) {
         setEditAudioUrl(response.data.url);
-        setSuccessMessage(`File uploaded: ${response.data.url}`);
-        setTimeout(() => setSuccessMessage(null), 3000);
+        setSuccessMessage(`File uploaded successfully! URL: ${response.data.url}`);
+        console.log('Upload success:', response.data);
+        setTimeout(() => setSuccessMessage(null), 5000);
       } else {
-        setError(response.error || 'Upload failed');
+        const errorMsg = response.error || 'Upload failed';
+        setError(errorMsg);
+        console.error('Upload failed:', errorMsg);
       }
     } catch (err) {
-      setError('Upload failed');
+      const errorMsg = 'Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error');
+      setError(errorMsg);
       console.error('Error uploading file:', err);
     } finally {
-      setUploading(false);
+    setUploading(false);
     }
   };
 
@@ -226,7 +246,7 @@ export default function ChaptersPage() {
     try {
       setError(null);
       const res = await fetch('/api/chapters', {
-        method: 'POST',
+      method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: uuidv4(),
@@ -249,11 +269,11 @@ export default function ChaptersPage() {
         // Reset form
         setTitleJp('');
         setTitleEn('');
-        setWorkId('');
+    setWorkId('');
         setChapterOrder('1');
         setContentJp('');
         setContentEn('');
-        setAudioUrl('');
+    setAudioUrl('');
         setDurationSeconds('');
         setSelectedCategories([]);
         fetchChapters();
@@ -377,7 +397,7 @@ export default function ChaptersPage() {
         <h2 className="text-xl font-semibold mb-4">Create New Chapter</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+    <div>
             <label className="block text-sm font-medium mb-1">
               Work <span className="text-red-500">*</span>
             </label>
@@ -387,23 +407,23 @@ export default function ChaptersPage() {
               className="w-full px-3 py-2 border rounded"
               required
             >
-              <option value="">Select a work</option>
-              {works.map((work) => (
-                <option key={work.id} value={work.id}>
+          <option value="">Select a work</option>
+          {works.map((work) => (
+            <option key={work.id} value={work.id}>
                   {work.title_jp} {work.title_en ? `(${work.title_en})` : ''}
-                </option>
-              ))}
-            </select>
+            </option>
+          ))}
+        </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">
               Chapter Order <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              value={chapterOrder}
-              onChange={(e) => setChapterOrder(e.target.value)}
+        <input
+          type="number"
+          value={chapterOrder}
+          onChange={(e) => setChapterOrder(e.target.value)}
               min="1"
               className="w-full px-3 py-2 border rounded"
               required
@@ -546,14 +566,14 @@ export default function ChaptersPage() {
                         onChange={(e) => setEditWorkId(e.target.value)}
                         className="px-3 py-2 border rounded"
                       >
-                        {works.map((work) => (
-                          <option key={work.id} value={work.id}>
+                  {works.map((work) => (
+                    <option key={work.id} value={work.id}>
                             {work.title_jp}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="number"
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
                         value={editChapterOrder}
                         onChange={(e) => setEditChapterOrder(e.target.value)}
                         placeholder="Chapter Order"
@@ -710,10 +730,10 @@ export default function ChaptersPage() {
                       </button>
                     </div>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
+            )}
+          </li>
+        ))}
+      </ul>
         )}
       </div>
     </div>
