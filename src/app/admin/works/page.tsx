@@ -195,9 +195,7 @@ export default function WorksPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Works Management</h1>
-
+    <div>
       {error && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
