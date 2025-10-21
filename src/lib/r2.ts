@@ -7,6 +7,7 @@
  */
 
 import { R2Bucket } from '@cloudflare/workers-types';
+import { getEnv } from './bindings';
 
 /**
  * Get the R2 bucket instance from the current request context
@@ -15,35 +16,23 @@ import { R2Bucket } from '@cloudflare/workers-types';
  * @throws Error if R2 binding is not available
  */
 export function getR2(): R2Bucket {
-  // For Cloudflare Pages - check cloudflare context
-  if (typeof globalThis !== 'undefined' && 'cloudflare' in globalThis) {
-    const env = (globalThis as any).cloudflare.env;
-    if (env?.R2) {
-      return env.R2 as R2Bucket;
-    }
+  // Try to get environment from Cloudflare context
+  const env = getEnv();
+  if (env?.R2) {
+    return env.R2;
   }
 
-  // For local development with wrangler
+  // Fallback to process.env (for compatibility)
   if (process.env.R2) {
     return process.env.R2 as unknown as R2Bucket;
   }
 
-  // Return a mock R2 bucket for build time
-  if (process.env.NODE_ENV !== 'production' && !process.env.R2) {
-    console.warn(
-      '⚠️  R2 Bucket binding not found during build. ' +
-      'This is expected during `next build`. ' +
-      'Make sure to run with `wrangler pages dev` for development.'
-    );
+  // Build time: return mock to prevent build errors
+  if (typeof window === 'undefined') {
     return createMockR2();
   }
 
-  throw new Error(
-    'R2 Bucket binding not found. ' +
-    'Make sure you are running with `wrangler pages dev` in development, ' +
-    'or that your Cloudflare Pages deployment has the R2 binding configured. ' +
-    'Standard `npm run dev` will not work with D1/R2 bindings.'
-  );
+  throw new Error('R2 Bucket binding not configured');
 }
 
 /**
