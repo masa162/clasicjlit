@@ -5,6 +5,7 @@ import type { WorkWithAuthor } from '@/types/database';
 // Force dynamic rendering to avoid build-time database access
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 async function getWorks(): Promise<WorkWithAuthor[]> {
   try {

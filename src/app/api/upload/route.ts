@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { uploadFile, getPublicUrl } from '@/lib/r2';
 import { NextRequest, NextResponse } from 'next/server';
 import { sanitizeFilename } from '@/lib/utils';

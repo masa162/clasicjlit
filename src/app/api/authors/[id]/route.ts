@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { getD1 } from '@/lib/d1';
 import { NextRequest, NextResponse } from 'next/server';
 import type { Author, UpdateAuthorRequest } from '@/types/database';

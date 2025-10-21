@@ -4,6 +4,8 @@
  * Handles CRUD operations for authors
  */
 
+export const runtime = 'edge';
+
 import { getD1 } from '@/lib/d1';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';

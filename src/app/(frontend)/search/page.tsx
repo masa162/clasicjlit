@@ -3,6 +3,7 @@ import SearchPageContent from './search-page-content';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 interface SearchResult {
   type: 'work' | 'chapter';

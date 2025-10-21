@@ -5,6 +5,7 @@ import type { Chapter } from '@/types/database';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 async function getChapter(chapterId: string): Promise<Chapter | null> {
   try {

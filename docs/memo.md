@@ -8,3 +8,6 @@ D:\github\clasicjlit\docs\要件定義書_いにしえ.md
 まず。プロジェクト。全体のコードを参照して。
 D:\github\clasicjlit
 この？コード ディレクトリ構造 自体を。評価してください。これ 100点中何点でしょうか？厳しく チェックしてください。問題点がある部分を上げてください。
+
+BASIC_AUTH_USER admin
+BASIC_AUTH_PASS 3939

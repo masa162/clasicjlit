@@ -5,6 +5,7 @@ import type { Work, Chapter } from '@/types/database';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 interface WorkWithAuthor extends Work {
   author_name_jp: string;
