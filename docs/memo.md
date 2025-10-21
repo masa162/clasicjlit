@@ -11,3 +11,42 @@ D:\github\clasicjlit
 
 BASIC_AUTH_USER admin
 BASIC_AUTH_PASS 3939
+
+
+https://clasicjlit.pages.dev/
+”
+Application error: a server-side exception has occurred while loading clasicjlit.pages.dev (see the server logs for more information).
+Digest: 2370152653
+”
+ビルドデプロイ通りましたが、表示できていませんね
+
+https://clasicjlit.pages.dev/
+設定ダッシュボードでできたはずなんですが、表示できないままですね。
+
+
+
+https://clasicjlit.pages.dev/admin
+管理画面は表示できました。
+
+https://clasicjlit.pages.dev/
+しかし、フロント側が表示できてないです
+
+
+https://clasicjlit.pages.dev/works/work-001
+✗
+
+フロントエンドが見れてないですね、
+もう一度、ローカルで再現してからにしませんか？
+
+
+https://clasicjlit.pages.dev/
+表示できました。
+UI超カッコいいっすね
+
+
+では、管理画面から
+1作品upしてみましょう
+
+タイトル    平家物語
+チャプター  01_祇園精舎
+音源    heike_c01.m4a
