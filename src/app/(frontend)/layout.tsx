@@ -1,3 +1,4 @@
+'use client';
 
 import { I18nProvider, useI18n } from '@/contexts/i18n';
 import Link from 'next/link';
@@ -12,11 +13,14 @@ function Header() {
       </h1>
       <div className="flex items-center">
         <form action="/search" method="get" className="hidden md:block">
-          <input type="search" name="q" placeholder={`${t('search')}...`} className="text-black" />
-          <button type="submit">{t('search')}</button>
+          <input type="search" name="q" placeholder={`${t('search')}...`} className="text-black px-2 py-1 rounded" />
+          <button type="submit" className="ml-2 bg-blue-500 px-4 py-1 rounded hover:bg-blue-600">{t('search')}</button>
         </form>
         <div className="ml-4">
-          <button onClick={() => setLang(lang === 'en' ? 'ja' : 'en')}>
+          <button 
+            onClick={() => setLang(lang === 'en' ? 'ja' : 'en')}
+            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600"
+          >
             {lang === 'en' ? '日本語' : 'English'}
           </button>
         </div>
@@ -30,18 +34,18 @@ function SideNav() {
   return (
     <nav className="w-full md:w-64 bg-gray-200 p-4">
       <form action="/search" method="get" className="md:hidden mb-4">
-        <input type="search" name="q" placeholder={`${t('search')}...`} className="text-black w-full" />
-        <button type="submit" className="w-full bg-gray-800 text-white mt-2">{t('search')}</button>
+        <input type="search" name="q" placeholder={`${t('search')}...`} className="text-black w-full px-2 py-1 rounded" />
+        <button type="submit" className="w-full bg-gray-800 text-white mt-2 py-2 rounded hover:bg-gray-700">{t('search')}</button>
       </form>
-      <ul>
+      <ul className="space-y-2">
         <li>
-          <Link href="/">{t('home')}</Link>
+          <Link href="/" className="block hover:text-blue-600">{t('home')}</Link>
         </li>
         <li>
-          <Link href="/authors">{t('authors')}</Link>
+          <Link href="/authors" className="block hover:text-blue-600">{t('authors')}</Link>
         </li>
         <li>
-          <Link href="/categories">{t('categories')}</Link>
+          <Link href="/categories" className="block hover:text-blue-600">{t('categories')}</Link>
         </li>
       </ul>
     </nav>

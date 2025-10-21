@@ -11,11 +11,6 @@ async function getWorks(): Promise<WorkWithAuthor[]> {
   try {
     const db = getD1();
     
-    if (!db) {
-      console.error('D1 database not available');
-      return [];
-    }
-    
     const stmt = db.prepare(`
       SELECT 
         w.id, 
@@ -39,9 +34,18 @@ async function getWorks(): Promise<WorkWithAuthor[]> {
     console.error('Error fetching works:', error);
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
+      isDev: process.env.NODE_ENV === 'development'
     });
-    return [];
+    
+    // In development without bindings, return empty array (don't crash)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Running in development mode without D1 bindings. Use `wrangler pages dev` for full functionality.');
+      return [];
+    }
+    
+    // In production, this is a real error
+    throw error;
   }
 }
 
