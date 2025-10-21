@@ -102,18 +102,25 @@ const I18nContext = createContext<I18nContextType | null>(null);
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   // Default language is English as per requirements (2.1.4)
   const [lang, setLang] = useState<Language>('en');
+  const [mounted, setMounted] = useState(false);
 
-  // Persist language preference in localStorage
+  // Persist language preference in localStorage (client-side only)
   useEffect(() => {
-    const savedLang = localStorage.getItem('preferred-language') as Language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'ja')) {
-      setLang(savedLang);
+    setMounted(true);
+    
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('preferred-language') as Language;
+      if (savedLang && (savedLang === 'en' || savedLang === 'ja')) {
+        setLang(savedLang);
+      }
     }
   }, []);
 
   const handleSetLang = (newLang: Language) => {
     setLang(newLang);
-    localStorage.setItem('preferred-language', newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-language', newLang);
+    }
   };
 
   const t = (key: keyof TranslationKeys): string => {
