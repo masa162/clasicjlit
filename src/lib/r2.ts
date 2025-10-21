@@ -7,22 +7,15 @@
  */
 
 import { R2Bucket } from '@cloudflare/workers-types';
-import { getEnv } from './bindings';
 
 /**
  * Get the R2 bucket instance from the current request context
  * This should be called within API routes
  * 
- * @throws Error if R2 binding is not available
+ * In Cloudflare Pages, bindings are automatically injected into process.env at runtime
  */
 export function getR2(): R2Bucket {
-  // Try to get environment from Cloudflare context
-  const env = getEnv();
-  if (env?.R2) {
-    return env.R2;
-  }
-
-  // Fallback to process.env (for compatibility)
+  // Cloudflare Pages automatically sets process.env.R2 at runtime
   if (process.env.R2) {
     return process.env.R2 as unknown as R2Bucket;
   }

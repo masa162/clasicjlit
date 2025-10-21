@@ -7,22 +7,15 @@
  */
 
 import { D1Database } from '@cloudflare/workers-types';
-import { getEnv } from './bindings';
 
 /**
  * Get the D1 database instance from the current request context
  * This should be called within API routes or server components
  * 
- * @throws Error if database binding is not available
+ * In Cloudflare Pages, bindings are automatically injected into process.env at runtime
  */
 export function getD1(): D1Database {
-  // Try to get environment from Cloudflare context
-  const env = getEnv();
-  if (env?.DB) {
-    return env.DB;
-  }
-
-  // Fallback to process.env (for compatibility)
+  // Cloudflare Pages automatically sets process.env.DB at runtime
   if (process.env.DB) {
     return process.env.DB as unknown as D1Database;
   }
