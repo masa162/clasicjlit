@@ -317,6 +317,7 @@ export default function NewChapterPage() {
         <div>
           <label className="block text-sm font-medium mb-1">Content (Japanese)</label>
           <SimpleMdeEditor
+            id="content-jp"
             value={contentJp}
             onChange={(value) => setContentJp(value)}
             options={{
@@ -329,6 +330,7 @@ export default function NewChapterPage() {
         <div>
           <label className="block text-sm font-medium mb-1">Content (English)</label>
           <SimpleMdeEditor
+            id="content-en"
             value={contentEn}
             onChange={(value) => setContentEn(value)}
             options={{
