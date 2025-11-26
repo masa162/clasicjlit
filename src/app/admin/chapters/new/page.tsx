@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { WorkWithAuthor, Category } from '@/types/database';
+import { uploadFileToWavestk } from '@/lib/wavestk';
 import 'easymde/dist/easymde.min.css';
 
 const SimpleMdeEditor = dynamic(() => import('react-simplemde-editor'), { ssr: false });
@@ -23,6 +24,8 @@ export default function NewChapterPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadMessage, setUploadMessage] = useState('');
 
   // Form states
   const [titleJp, setTitleJp] = useState('');
@@ -72,53 +75,44 @@ export default function NewChapterPage() {
 
     console.log('File selected:', { name: file.name, size: file.size, type: file.type });
 
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 100 * 1024 * 1024; // 100MB (wavestk limit)
     const allowedTypes = ['audio/aac', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-m4a'];
     
     if (!allowedTypes.includes(file.type)) {
-      setError(`Invalid file type: ${file.type}. Allowed: AAC, MP3, WAV, M4A`);
+      setError(`無効なファイル形式: ${file.type}。対応形式: AAC, MP3, WAV, M4A`);
       console.error('Invalid file type:', file.type);
       return;
     }
     
     if (file.size > maxSize) {
-      setError(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds 10MB limit`);
+      setError(`ファイルサイズ (${(file.size / 1024 / 1024).toFixed(2)}MB) が100MBの制限を超えています`);
       return;
     }
 
     setUploading(true);
     setError(null);
+    setUploadProgress(0);
+    setUploadMessage('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      console.log('Uploading to /api/upload...');
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      console.log('Uploading to wavestk...');
+      const result = await uploadFileToWavestk(file, (progress, message) => {
+        setUploadProgress(progress);
+        setUploadMessage(message);
       });
-
-      console.log('Upload response status:', res.status);
-      const response: ApiResponse<{ url: string; key: string }> = await res.json();
-      console.log('Upload response:', response);
       
-      if (response.success && response.data) {
-        setAudioUrl(response.data.url);
-        setSuccessMessage(`File uploaded successfully! URL: ${response.data.url}`);
-        console.log('Upload success:', response.data);
-        setTimeout(() => setSuccessMessage(null), 5000);
-      } else {
-        const errorMsg = response.error || 'Upload failed';
-        setError(errorMsg);
-        console.error('Upload failed:', errorMsg);
-      }
+      console.log('Upload success:', result);
+      setAudioUrl(result.url);
+      setSuccessMessage(`ファイルのアップロードに成功しました! URL: ${result.url}`);
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
-      const errorMsg = 'Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error');
+      const errorMsg = 'アップロード失敗: ' + (err instanceof Error ? err.message : '不明なエラー');
       setError(errorMsg);
       console.error('Error uploading file:', err);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
+      setUploadMessage('');
     }
   };
 
@@ -281,14 +275,27 @@ export default function NewChapterPage() {
             className="w-full px-3 py-2 border rounded"
             disabled={uploading}
           />
-          {uploading && <p className="text-sm text-blue-600 mt-1">Uploading...</p>}
+          {uploading && (
+            <div className="mt-2">
+              <div className="flex justify-between text-sm text-blue-600 mb-1">
+                <span>{uploadMessage}</span>
+                <span>{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
           {audioUrl && (
             <p className="text-sm text-green-600 mt-1 break-all">
-              ✓ Uploaded: {audioUrl}
+              ✓ アップロード完了: {audioUrl}
             </p>
           )}
           <p className="text-xs text-gray-500 mt-1">
-            Max 10MB. Allowed: AAC, MP3, WAV, M4A
+            最大 100MB。対応形式: AAC, MP3, WAV, M4A
           </p>
         </div>
 
