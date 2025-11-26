@@ -39,62 +39,64 @@ export async function PUT(
   try {
     const { id } = await params;
     const body: UpdateChapterRequest = await req.json();
-    const {
-      work_id,
-      chapter_order,
-      title_jp,
-      title_en,
-      audio_url,
-      content_jp,
-      content_en,
-      duration_seconds,
-      category_ids
-    } = body;
+    
+    // Define allowed columns for update
+    const allowedColumns = [
+      'work_id',
+      'chapter_order',
+      'title_jp',
+      'title_en',
+      'audio_url',
+      'content_jp',
+      'content_en',
+      'duration_seconds'
+    ];
+
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    // Build dynamic update query
+    for (const col of allowedColumns) {
+      if (col in body) {
+        updates.push(`${col} = ?`);
+        // @ts-ignore - body is typed but we're iterating dynamically
+        values.push(body[col]);
+      }
+    }
 
     const db = getD1();
     
-    // Update chapter
-    await db
-      .prepare(`
-        UPDATE chapters 
-        SET work_id = COALESCE(?, work_id),
-            chapter_order = COALESCE(?, chapter_order),
-            title_jp = COALESCE(?, title_jp),
-            title_en = COALESCE(?, title_en),
-            audio_url = COALESCE(?, audio_url),
-            content_jp = COALESCE(?, content_jp),
-            content_en = COALESCE(?, content_en),
-            duration_seconds = COALESCE(?, duration_seconds),
-            updated_at = datetime('now')
-        WHERE id = ?
-      `)
-      .bind(
-        work_id,
-        chapter_order,
-        title_jp,
-        title_en,
-        audio_url,
-        content_jp,
-        content_en,
-        duration_seconds,
-        id
-      )
-      .run();
+    // Only run update if there are changes
+    if (updates.length > 0) {
+      updates.push("updated_at = datetime('now')");
+      values.push(id);
+
+      const query = `UPDATE chapters SET ${updates.join(', ')} WHERE id = ?`;
+      
+      await db
+        .prepare(query)
+        .bind(...values)
+        .run();
+    }
 
     // Update categories if provided
-    if (category_ids) {
+    if ('category_ids' in body) {
+      const category_ids = body.category_ids;
+      
       // Delete existing category relationships
       await db
         .prepare('DELETE FROM chapter_categories WHERE chapter_id = ?')
         .bind(id)
         .run();
       
-      // Insert new relationships
-      for (const categoryId of category_ids) {
-        await db
-          .prepare('INSERT INTO chapter_categories (chapter_id, category_id) VALUES (?, ?)')
-          .bind(id, categoryId)
-          .run();
+      // Insert new relationships if any
+      if (category_ids && Array.isArray(category_ids)) {
+        for (const categoryId of category_ids) {
+          await db
+            .prepare('INSERT INTO chapter_categories (chapter_id, category_id) VALUES (?, ?)')
+            .bind(id, categoryId)
+            .run();
+        }
       }
     }
     

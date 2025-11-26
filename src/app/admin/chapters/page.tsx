@@ -222,12 +222,12 @@ export default function ChaptersListPage() {
           work_id: editWorkId,
           chapter_order: parseInt(editChapterOrder),
           title_jp: editTitleJp,
-          title_en: editTitleEn || undefined,
+          title_en: editTitleEn || null,
           audio_url: editAudioUrl,
-          content_jp: editContentJp || undefined,
-          content_en: editContentEn || undefined,
-          duration_seconds: editDurationSeconds ? parseInt(editDurationSeconds) : undefined,
-          category_ids: editSelectedCategories.length > 0 ? editSelectedCategories : undefined,
+          content_jp: editContentJp || null,
+          content_en: editContentEn || null,
+          duration_seconds: editDurationSeconds ? parseInt(editDurationSeconds) : null,
+          category_ids: editSelectedCategories,
         }),
       });
 
