@@ -3,7 +3,7 @@
  * Handles chunked uploads to wavestk service
  */
 
-const WAVESTK_API_BASE = 'https://wave.be2nd.com/api';
+const WAVESTK_API_BASE = 'https://wavestk.pages.dev/api';
 const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
 const MAX_RETRIES = 3;
 
